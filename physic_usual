@@ -1,0 +1,123 @@
+#include<iostream>
+#include<cmath>
+#include<cstring>
+#include<algorithm>
+#include<vector>
+const int INF = 1e6 + 10;//防止缓冲区溢出
+const int N = 1e6+ 7;
+const int MAXN = 1e4;
+typedef long long ll;
+typedef long double ng;
+using namespace std;
+long double a[11],b[11];
+//实验数据计算API模块集
+//坏值检验模块
+long double delta_l_uncer(long double p) 
+{
+	long double sqsum = 0;//适用于逐差法
+	for (int i = 1; i <= 5; ++i)
+	{
+		sqsum += (b[i] - p) * (b[i] - p);
+	}
+	return sqrt(sqsum) * 0.5;
+}
+void BadValue(ng q,ng p)
+{
+	//36区间：
+	ng r = 3 * q;
+	cout << "36值：";
+	cout << r << endl;
+	cout << "36区间为：";
+	cout << p - r << "," << p + r << endl;
+}
+//A类不确定度
+ng AtypeUncertainty(ng a) 
+{
+	int n = 5;
+	ng tp = 1.14;
+	ng ua = tp * a / sqrt(n);
+	
+	return ua;
+}
+ng TotalUncertainty(ng ua)
+{
+	ng ub = 0.0058;
+	ng oo = ub * ub + ua * ua;
+	return 2 * sqrt(oo);
+}
+ng averagelamda(ng p)
+{
+	return 0.2 * p;
+}
+ng averageu26(ng u26)
+{
+	return 0.2 * u26;
+}
+
+ng theoryvalue(ng t)
+{
+	ng n = (273.15 + t) / 273.15;
+	return 331.45 * sqrt(n);
+}
+ng percentminus(ng a,ng b)
+{
+	ng u = (a - b) / b * 0.001;
+	return u;
+}
+
+int main()
+{
+	printf("请输入实验数据，从1到10：\n");
+	for (int i = 1; i <= 10; ++i)
+	{
+		cin >> a[i];
+
+	}
+    long double sum = 0;
+	for (int i = 1; i <= 5; ++i)
+	{
+		sum += a[i + 5] - a[i];
+		b[i] = a[i + 5] - a[i];
+	}
+	long double p = sum / 5;
+	printf("逐差法各数据：\n");
+	for (int i = 1; i <= 5; ++i)
+	{
+		cout << b[i] << endl;
+	}
+	printf("l的均值：");
+	cout << p << endl;
+	printf("△l的不确定度：");
+	ng sl = delta_l_uncer(p);
+	cout << sl << endl;
+	printf("坏值检验：\n");
+	BadValue(sl, p);
+	printf("A类不确定度：");
+	ng ua = AtypeUncertainty(sl);
+	cout<<AtypeUncertainty(sl)<<endl;
+	printf("B类不确定度：0.0058\n");
+	printf("总不确定度：");
+	ng u26 = TotalUncertainty(ua);
+	cout << u26 << endl;
+	printf("结果表达式：\n");
+	cout <<"△L=" << p << "±" << u26 << endl;
+	cout << "λ的不确定度：" << endl;
+	cout <<"λ的均值：" << averagelamda(p) << endl;
+	cout << "λ的不确定度：" << averageu26(u26) << endl;
+	cout << "结果表达式：" << endl;
+	cout << "请输入最大振幅时频率：(kHz)";
+	ng f;
+	cin >> f;
+	ng vv = f * averagelamda(p);
+	cout << "声速的计算：v=" << vv<< endl;
+	printf("不确定度传递：\n");
+  //remain no assured solution:(
+	cout << "u(v均值)/v均值=" << endl;
+	printf("百分差的计算：请输入室温：");
+	ng t;
+	cin >> t;
+	ng th = theoryvalue(t);
+	cout << "理论：vt=" << th << endl;
+	cout << "百分差：" << percentminus(vv, th) << "%" << endl;
+	return 0;
+}
